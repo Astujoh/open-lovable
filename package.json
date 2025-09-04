@@ -1,5 +1,3 @@
-"start": "next build && next start"
-
 {
   "name": "open-lovable",
   "version": "0.1.0",
@@ -8,13 +6,14 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start",
+    "start": "next build && next start",
     "lint": "next lint",
     "test:integration": "node tests/e2b-integration.test.js",
     "test:api": "node tests/api-endpoints.test.js",
     "test:code": "node tests/code-execution.test.js",
     "test:all": "npm run test:integration && npm run test:api && npm run test:code"
-  },
+  }
+},
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.1",
     "@ai-sdk/google": "^2.0.4",
