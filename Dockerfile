@@ -1,7 +1,7 @@
 # Usa una imagen base optimizada para Node.js
 FROM node:18-alpine AS base
 
-# Instalar dependencias necesarias para LightningCSS y compilación nativa
+# Instalar dependencias necesarias para LightningCSS y pnpm
 RUN apk add --no-cache \
     python3 \
     make \
@@ -9,6 +9,9 @@ RUN apk add --no-cache \
     libc6-compat \
     libstdc++ \
     linux-headers
+
+# Instalar pnpm globalmente
+RUN npm install -g pnpm
 
 # -----------------
 # Fase de producción
@@ -23,7 +26,7 @@ RUN adduser --system --uid 1001 nextjs
 # Copia los archivos de configuración y dependencias
 COPY package*.json ./
 
-# Instala las dependencias (npm install en lugar de npm ci)
+# Instala las dependencias
 RUN npm install --omit=dev && npm cache clean --force
 
 # Copia el resto del código
