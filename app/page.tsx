@@ -22,6 +22,8 @@ import {
 } from '@/lib/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import CodeApplicationProgress, { type CodeApplicationState } from '@/components/CodeApplicationProgress';
+import { ThemeToggle } from '@/app/components/theme-toggle';
+import { ThemeLogo } from '@/app/components/theme-logo';
 
 interface SandboxData {
   sandboxId: string;
@@ -136,6 +138,8 @@ export default function AISandboxPage() {
 
   // Clear old conversation data on component mount and create/restore sandbox
   useEffect(() => {
+    let isMounted = true;
+
     const initializePage = async () => {
       // Clear old conversation
       try {
@@ -147,32 +151,44 @@ export default function AISandboxPage() {
         console.log('[home] Cleared old conversation data on mount');
       } catch (error) {
         console.error('[ai-sandbox] Failed to clear old conversation:', error);
+        if (isMounted) {
+          addChatMessage('Failed to clear old conversation data.', 'error');
+        }
       }
       
+      if (!isMounted) return;
+
       // Check if sandbox ID is in URL
       const sandboxIdParam = searchParams.get('sandbox');
       
-      if (sandboxIdParam) {
-        // Try to restore existing sandbox
-        console.log('[home] Attempting to restore sandbox:', sandboxIdParam);
-        setLoading(true);
-        try {
+      setLoading(true);
+      try {
+        if (sandboxIdParam) {
+          console.log('[home] Attempting to restore sandbox:', sandboxIdParam);
           // For now, just create a new sandbox - you could enhance this to actually restore
           // the specific sandbox if your backend supports it
           await createSandbox(true);
-        } catch (error) {
-          console.error('[ai-sandbox] Failed to restore sandbox:', error);
-          // Create new sandbox on error
+        } else {
+          console.log('[home] No sandbox in URL, creating new sandbox automatically...');
           await createSandbox(true);
         }
-      } else {
-        // Automatically create new sandbox
-        console.log('[home] No sandbox in URL, creating new sandbox automatically...');
-        await createSandbox(true);
+      } catch (error) {
+        console.error('[ai-sandbox] Failed to create or restore sandbox:', error);
+        if (isMounted) {
+          addChatMessage('Failed to create or restore sandbox.', 'error');
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
     
     initializePage();
+
+    return () => {
+      isMounted = false;
+    };
   }, []); // Run only on mount
   
   useEffect(() => {
@@ -2725,6 +2741,9 @@ Focus on the key sections and content, making it clean and modern.`;
 
   return (
     <div className="font-sans bg-background text-foreground h-screen flex flex-col">
+      {/* Theme Toggle */}
+      <ThemeToggle />
+      
       {/* Home Screen Overlay */}
       {showHomeScreen && (
         <div className={`fixed inset-0 z-50 transition-opacity duration-500 ${homeScreenFading ? 'opacity-0' : 'opacity-100'}`}>
@@ -2772,11 +2791,7 @@ Focus on the key sections and content, making it clean and modern.`;
           
           {/* Header */}
           <div className="absolute top-0 left-0 right-0 z-20 px-6 py-4 flex items-center justify-between animate-[fadeIn_0.8s_ease-out]">
-            <img
-              src="/firecrawl-logo-with-fire.webp"
-              alt="Firecrawl"
-              className="h-8 w-auto"
-            />
+            <ThemeLogo />
             <a 
               href="https://github.com/mendableai/open-lovable" 
               target="_blank" 
@@ -2989,11 +3004,7 @@ Focus on the key sections and content, making it clean and modern.`;
       
       <div className="bg-card px-4 py-4 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <img
-            src="/firecrawl-logo-with-fire.webp"
-            alt="Firecrawl"
-            className="h-8 w-auto"
-          />
+          <ThemeLogo />
         </div>
         <div className="flex items-center gap-2">
           {/* Model Selector - Left side */}
