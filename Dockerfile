@@ -1,7 +1,7 @@
 # Usa una imagen base optimizada para Node.js
 FROM node:18-alpine AS base
 
-# Instalar dependencias necesarias para LightningCSS y pnpm
+# Instalar dependencias necesarias para LightningCSS y compilación nativa
 RUN apk add --no-cache \
     python3 \
     make \
@@ -10,7 +10,7 @@ RUN apk add --no-cache \
     libstdc++ \
     linux-headers
 
-# Instalar pnpm globalmente
+# Instalar pnpm globalmente (Next.js lo puede necesitar automáticamente)
 RUN npm install -g pnpm
 
 # -----------------
@@ -26,8 +26,14 @@ RUN adduser --system --uid 1001 nextjs
 # Copia los archivos de configuración y dependencias
 COPY package*.json ./
 
-# Instala las dependencias
-RUN npm install --omit=dev && npm cache clean --force
+# Instala todas las dependencias incluyendo TypeScript
+RUN npm install
+
+# Instalar TypeScript globalmente como respaldo
+RUN npm install -g typescript
+
+# Limpiar cache
+RUN npm cache clean --force
 
 # Copia el resto del código
 COPY . .
@@ -41,5 +47,5 @@ USER nextjs
 # Establece el puerto por defecto
 EXPOSE 3000
 
-# El comando start ya incluye build y start
+# Usar npm para ejecutar scripts
 CMD ["npm", "run", "start"]
