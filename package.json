@@ -1,3 +1,5 @@
+"start": "next build && next start"
+
 {
   "name": "open-lovable",
   "version": "0.1.0",
