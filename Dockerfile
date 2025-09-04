@@ -23,8 +23,8 @@ RUN adduser --system --uid 1001 nextjs
 # Copia los archivos de configuración y dependencias
 COPY package*.json ./
 
-# Instala solo las dependencias de producción
-RUN npm ci --only=production && npm cache clean --force
+# Instala las dependencias (npm install en lugar de npm ci)
+RUN npm install --omit=dev && npm cache clean --force
 
 # Copia el resto del código
 COPY . .
