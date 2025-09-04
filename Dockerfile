@@ -1,16 +1,14 @@
-# Usa una imagen base optimizada para Node.js
-FROM node:18-alpine AS base
+# Cambiar de Alpine a Debian slim para mejor compatibilidad con LightningCSS
+FROM node:18-slim AS base
 
-# Instalar dependencias necesarias para LightningCSS y compilación nativa
-RUN apk add --no-cache \
+# Instalar dependencias necesarias
+RUN apt-get update && apt-get install -y \
     python3 \
     make \
     g++ \
-    libc6-compat \
-    libstdc++ \
-    linux-headers
+    && rm -rf /var/lib/apt/lists/*
 
-# Instalar pnpm globalmente (Next.js lo puede necesitar automáticamente)
+# Instalar pnpm globalmente
 RUN npm install -g pnpm
 
 # -----------------
@@ -20,8 +18,8 @@ FROM base AS production
 WORKDIR /app
 
 # Crear usuario no-root para seguridad
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN groupadd --gid 1001 nodejs && \
+    useradd --uid 1001 --gid nodejs --shell /bin/bash --create-home nextjs
 
 # Copia los archivos de configuración y dependencias
 COPY package*.json ./
