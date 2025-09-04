@@ -30,11 +30,18 @@ RUN npm install
 # Instalar TypeScript globalmente como respaldo
 RUN npm install -g typescript
 
-# Limpiar cache
-RUN npm cache clean --force
-
 # Copia el resto del código
 COPY . .
+
+# IMPORTANTE: Reinstalar LightningCSS para generar el binario nativo correcto
+RUN npm rebuild lightningcss
+
+# Verificar que el binario existe (para debug)
+RUN ls -la /app/node_modules/lightningcss/ || true
+RUN ls -la /app/node_modules/lightningcss/lightningcss.linux-x64-gnu.node || echo "Binario no encontrado"
+
+# Limpiar cache
+RUN npm cache clean --force
 
 # Cambiar ownership de los archivos
 RUN chown -R nextjs:nodejs /app
