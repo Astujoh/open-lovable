@@ -1,56 +1,36 @@
-# Cambiar de Alpine a Debian slim para mejor compatibilidad con LightningCSS
 FROM node:18-slim AS base
 
-# Instalar dependencias necesarias
+# Instalar solo dependencias esenciales
 RUN apt-get update && apt-get install -y \
     python3 \
     make \
     g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalar pnpm globalmente
-RUN npm install -g pnpm
-
-# -----------------
-# Fase de producción
-# -----------------
 FROM base AS production
 WORKDIR /app
 
-# Crear usuario no-root para seguridad
-RUN groupadd --gid 1001 nodejs && \
-    useradd --uid 1001 --gid nodejs --shell /bin/bash --create-home nextjs
-
-# Copia los archivos de configuración y dependencias
+# Copia package*.json
 COPY package*.json ./
 
-# Instala todas las dependencias incluyendo TypeScript
-RUN npm install
+# Instala dependencias (solo producción para ahorrar espacio)
+RUN npm ci --omit=dev && npm cache clean --force
 
-# Instalar TypeScript globalmente como respaldo
-RUN npm install -g typescript
-
-# Copia el resto del código
+# Copia código fuente
 COPY . .
 
-# IMPORTANTE: Reinstalar LightningCSS para generar el binario nativo correcto
-RUN npm rebuild lightningcss
+# Build de la aplicación
+RUN npm run build
 
-# Verificar que el binario existe (para debug)
-RUN ls -la /app/node_modules/lightningcss/ || true
-RUN ls -la /app/node_modules/lightningcss/lightningcss.linux-x64-gnu.node || echo "Binario no encontrado"
+# Crear usuario no-root
+RUN groupadd --gid 1001 nodejs && \
+    useradd --uid 1001 --gid nodejs nextjs
 
-# Limpiar cache
-RUN npm cache clean --force
+# Cambiar ownership solo de archivos necesarios
+RUN chown -R nextjs:nodejs .next
 
-# Cambiar ownership de los archivos
-RUN chown -R nextjs:nodejs /app
-
-# Cambiar al usuario no-root
 USER nextjs
 
-# Establece el puerto por defecto
 EXPOSE 3000
 
-# Usar npm para ejecutar scripts
 CMD ["npm", "run", "start"]
