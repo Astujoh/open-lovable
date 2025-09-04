@@ -2,7 +2,7 @@
 FROM node:18-alpine AS base
 
 # -----------------
-# Fase 1: Build
+# Fase 1: Construcción
 # -----------------
 FROM base AS build
 
@@ -27,7 +27,7 @@ FROM base AS production
 
 WORKDIR /app
 
-# Copia solo los archivos necesarios para la producción desde la fase de "build"
+# Copia solo los archivos necesarios para la producción desde la fase de "construcción"
 COPY --from=build /app/.next ./.next
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/package.json ./package.json
