@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p $PORT",
     "lint": "next lint",
     "test:integration": "node tests/e2b-integration.test.js",
     "test:api": "node tests/api-endpoints.test.js",
@@ -14,14 +14,19 @@
     "test:all": "npm run test:integration && npm run test:api && npm run test:code"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^2.0.1",
+    "next": "14.2.5",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "tailwindcss": "3.4.10",
+    "next-themes": "0.4.6",
     "@ai-sdk/google": "2.0.12",
+    "@ai-sdk/provider-utils": "3.0.8",
+    "@ai-sdk/anthropic": "^2.0.1",
     "@ai-sdk/groq": "^2.0.0",
     "@ai-sdk/openai": "^2.0.4",
     "@anthropic-ai/sdk": "^0.57.0",
     "@e2b/code-interpreter": "^1.5.1",
     "@radix-ui/react-slot": "^1.2.3",
-    "@ai-sdk/provider-utils": "3.0.8",
     "@radix-ui/react-switch": "^1.2.5",
     "@types/react-syntax-highlighter": "^15.5.13",
     "ai": "^5.0.0",
@@ -34,10 +39,6 @@
     "framer-motion": "^12.23.12",
     "groq-sdk": "^0.29.0",
     "lucide-react": "^0.532.0",
-    "next": "14.2.5",
-    "next-themes": "0.4.6",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
     "react-icons": "^5.5.0",
     "react-syntax-highlighter": "^15.6.1",
     "tailwind-merge": "^3.3.1",
@@ -47,16 +48,16 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
     "eslint": "^9",
-    "eslint-config-next": "15.4.3",
+    "eslint-config-next": "14.2.5",
     "postcss": "^8.4.31",
-    "tailwindcss": "3.4.10",
     "typescript": "^5"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20",
+    "npm": ">=10"
   },
   "packageManager": "npm@10"
 }
