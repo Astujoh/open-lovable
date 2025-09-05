@@ -1,36 +1,31 @@
-FROM node:18-slim AS base
-
-# Instalar solo dependencias esenciales
-RUN apt-get update && apt-get install -y \
-    python3 \
-    make \
-    g++ \
-    && rm -rf /var/lib/apt/lists/*
-
-FROM base AS production
+# ---------- deps ----------
+FROM node:20-alpine AS deps
 WORKDIR /app
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false
+COPY package.json package-lock.json ./
+RUN npm ci
 
-# Copia package*.json
-COPY package*.json ./
-
-# Instala dependencias (solo producción para ahorrar espacio)
-RUN npm install --only=production && npm cache clean --force
-
-# Copia código fuente
+# ---------- builder ----------
+FROM node:20-alpine AS builder
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Build de la aplicación
 RUN npm run build
 
-# Crear usuario no-root
-RUN groupadd --gid 1001 nodejs && \
-    useradd --uid 1001 --gid nodejs nextjs
-
-# Cambiar ownership solo de archivos necesarios
-RUN chown -R nextjs:nodejs .next
-
+# ---------- runner ----------
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+# usuario no-root
+RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
+# copiar artefactos
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY package.json ./
+COPY --from=deps /app/node_modules ./node_modules
 USER nextjs
-
 EXPOSE 3000
-
-CMD ["npm", "run", "start"]
+# "next start" está en los scripts del proyecto típico Next.js
+CMD ["npm", "run", "start", "--", "-p", "3000"]
