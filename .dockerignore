@@ -1,9 +1,31 @@
+# Ignorar node_modules y lockfiles locales
 node_modules
-npm-debug.log
-Dockerfile
-.dockerignore
-.git
-.gitignore
+npm-debug.log*
+yarn.lock
+pnpm-lock.yaml
+package-lock.json
+
+# Ignorar directorios de build locales
 .next
+out
+dist
+
+# Ignorar configuraciones de entorno
 .env
 .env.local
+.env.development
+.env.production
+.env.test
+
+# Ignorar control de versiones
+.git
+.gitignore
+
+# Ignorar archivos del sistema
+.DS_Store
+*.swp
+*.swo
+
+# Logs
+logs
+*.log
