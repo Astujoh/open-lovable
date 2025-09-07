@@ -16,7 +16,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Importante: solo compila, no mete variables sensibles
-RUN npm run build
+RUN npm i -g corepack@latest
 
 # Etapa 3: runtime
 FROM node:20-alpine AS runner
